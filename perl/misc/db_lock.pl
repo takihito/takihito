@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use forks;
+use Data::Dumper;
 
 my $LOCK = $ARGV[0] || '';
 my $thread1  = threads->new(\&_thread ,1 ,$LOCK );
@@ -12,44 +13,51 @@ my $thread2  = threads->new(\&_thread ,2 ,$LOCK );
 sub _thread {
     my $args = shift;
     my $lock = shift || '';
+    my $id   = 2;
+    #my $id  = $args;
 
-#    require DBI;
-    use DBI;
+    require DBIx::Simple;
 
-    my $dbh = DBI->connect('dbi:mysql:sample', 'root',  '', { AutoCommit => 0, RaiseError => 1 });
-    $dbh->do('BEGIN') if $lock;
-    for (1..5) {
+    my $db = DBIx::Simple->connect('dbi:mysql:sample', 'root',  '', { AutoCommit => 0, RaiseError => 1 });
 
-        sleep(1);
-        my $sql = 'select id, point1, point2 from user_point';
+    $db->dbh->do('BEGIN') if $lock;
+    my $connection_id = '';
+    my $info = $db->query('SHOW PROCESSLIST');
+    $connection_id = $info->hash->{id};
+    for (1..3) {
+        my ($i,$j);
+        my $sql = "select id, point1, point2 from point where id = $id ";
         if ( $lock ) {
-            $sql = 'select id, point1, point2 from user_point where id = 2 for update';
+            $sql = "select id, point1, point2 from point where id = $id for update";
         }
-        my $sth = $dbh->prepare($sql);
-        $sth->execute();
-        my ($id, $point1, $point2) = $sth->fetchrow_array();
-        print "$args PID:$$ args:$args ($point1) ".time()." \n";
+        my $result = $db->query($sql);
+        my $colums = $result->hash;
+        $i = $colums->{point1};
 
-        sleep(1);
-        $sql = "update user_point set point1 = $args where id = 2";
-        $dbh->do($sql);
+        sleep(3);
+        $sql = "update point set point1 = point1 + 1 where id = $id";
+        $result = $db->query($sql);
         
-        sleep(1);
-        $sql = 'select id, point1, point2 from user_point';
-        $sth = $dbh->prepare($sql);
-        $sth->execute();
-        ($id, $point1, $point2) = $sth->fetchrow_array();
-        print "$args    PID:$$ args:$args ($point1) ".time()." \n";
-        $sth->finish;
+        $sql = "select id, point1, point2 from point where id = $id";
+        $result = $db->query($sql);
+        $colums = $result->hash;
+        $j = $colums->{point1};
+        print  "$$ id:$id ($i,$j) connection_id:$connection_id\n";
+        $result->finish;
     }
-    $dbh->do('COMMIT');
-    $dbh->disconnect;
+    print "commit\n";
+    $db->dbh->do('COMMIT');
+    $db->dbh->{'_fbav'}  = undef;
+    $db->dbh->{'Active'} = 0;
+    $db->dbh->disconnect;
 }
 
+print "start\n";
 $thread1->join();
+sleep(1);
 $thread2->join();
+print "end\n";
 
 
 __END__
-
 
