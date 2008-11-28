@@ -33,16 +33,20 @@ has [ qw<check_atime check_mtime check_ctime> ] =>
 
 has 'check_size' => ( is  => 'rw', isa => 'Int');
 
-sub BUILD {
-    my ($self) = @_;
+has 'file_name' => ( is  => 'rw', isa => 'Str');
 
-    $self->check_atime( DateTime->from_epoch( epoch => $self->file->atime ) )
+sub BUILD {
+    my ($self,$attr) = @_;
+
+    $self->file_name($attr->{file});
+
+    $self->check_atime( $self->_epoch2dt($self->file->atime) )
       unless $self->check_atime;
 
-    $self->check_mtime( DateTime->from_epoch( epoch => $self->file->ctime ) )
+    $self->check_mtime( $self->_epoch2dt($self->file->ctime) )
       unless $self->check_mtime;
 
-    $self->check_ctime( DateTime->from_epoch( epoch => $self->file->ctime ) )
+    $self->check_ctime( $self->_epoch2dt($self->file->ctime) )
       unless $self->check_ctime;
 
     $self->check_size( $self->file->size )
@@ -58,17 +62,28 @@ sub check {
         $result->{$_} = 0;
     }
 
-    $result->{size_trigger} = $self->call_trigger('size_trigger',$self)
-        if $self->file->size != $self->check_size;
+    my $fs = File::Stat::Moose->new( file => $self->file_name );
+    $self->file($fs);
 
-    $result->{atime_trigger}  = $self->call_trigger('atime_trigger',$self) 
-        if $self->file->atime != $self->check_atime->epoch;
+    if ( $self->file->size != $self->check_size ) {
+        $result->{size_trigger} = $self->call_trigger('size_trigger',$self);
+        $self->check_size($self->file->size);
+    }
 
-    $result->{mtime_trigger}  = $self->call_trigger('mtime_trigger',$self)
-        if $self->file->mtime != $self->check_mtime->epoch;
+    if ( $self->file->atime != $self->check_atime->epoch ) {
+        $result->{atime_trigger} = $self->call_trigger('atime_trigger',$self);
+        $self->check_atime($self->_epoch2dt($self->file->atime));
+    }
 
-    $result->{ctime_trigger}  = $self->call_trigger('ctime_trigger',$self)
-        if $self->file->ctime != $self->check_ctime->epoch;
+    if ( $self->file->mtime != $self->check_mtime->epoch ) {
+        $result->{mtime_trigger} = $self->call_trigger('mtime_trigger',$self);
+        $self->check_mtime($self->_epoch2dt($self->file->mtime));
+    }
+
+    if ( $self->file->ctime != $self->check_ctime->epoch ) {
+        $result->{ctime_trigger} = $self->call_trigger('ctime_trigger',$self);
+        $self->check_ctime($self->_epoch2dt($self->file->ctime));
+    }
 
     return $result;
 }
@@ -96,6 +111,12 @@ sub ctime_trigger {
 sub _trigger {
     my ($self, $type, $code) = @_;
     $self->add_trigger($type,$code);
+}
+
+sub _epoch2dt{
+    my ($self, $epoch) = @_;
+    my $dt = DateTime->from_epoch( epoch => $epoch );
+    return $dt;
 }
 
 1;

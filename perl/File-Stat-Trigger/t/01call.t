@@ -7,8 +7,8 @@ BEGIN { use_ok 'File::Stat::Trigger' }
 my $fs = File::Stat::Trigger->new({
  file        => 't/sample.txt',
  check_atime => '2008/11/20 12:00:00',
- check_mtime => '2008/11/20 12:00:00',
- check_ctime => '2008/11/20 12:00:00',
+# check_mtime => '2008/11/20 12:00:00',
+# check_ctime => '2008/11/20 12:00:00',
  check_size  => 1024,
 
 });
