@@ -15,20 +15,20 @@ my $fs = File::Stat::Trigger->new({
 
 ok($fs->size_trigger( sub {
         my $self = shift;
-        my $i = $self->file->size;    
-        my $j = $self->check_size;    
+        my $i = $self->file_stat->size;    
+        my $j = $self->check_size;
     } ));
 
 ok($fs->atime_trigger(\&sample));
 
-my $result = $fs->check();
+my $result = $fs->scan();
 
 is($result->{size_trigger},1,'Not Call size_trigger');
 is($result->{atime_trigger},1,'Not Call atime_trigger');
 
 sub sample {
      my $fs = shift;
-     print 'file.atime:'.$fs->file->atime."\n";
+     print 'file.atime:'.$fs->file_stat->atime->ymd('-')."\n";
      print 'check_atime:'.$fs->check_atime."\n";
 #     $fs->check_atime->epoch;    
 #     $fs->file->mtime;
