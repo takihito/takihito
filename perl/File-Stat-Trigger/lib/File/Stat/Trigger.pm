@@ -29,71 +29,82 @@ coerce 'DateTime'
 has 'file_stat' => (is => 'rw', isa => 'FileStat', coerce  => 1);
 
 has [ qw<check_atime check_mtime check_ctime> ] =>
+    ( is  => 'rw', isa => 'ArrayRef', coerce  => 1, default => sub { ['!='] } );
+
+has [ qw<_atime _mtime _ctime> ] =>
     ( is  => 'rw', isa => 'DateTime', coerce  => 1);
 
-has 'check_size' => ( is  => 'rw', isa => 'Int');
+has 'check_size' => ( is  => 'rw', isa => 'ArrayRef');
+
+has '_size' => ( is  => 'rw', isa => 'Int');
+
+has 'auto_stat' => ( is  => 'rw', isa => 'Int', default => 0);
 
 has 'file' => ( is  => 'rw', isa => 'Str');
 
 sub BUILD {
-    my ($self,$attr) = @_;
+    my ($self) = @_;
+    $self->init_stat();
+}
+
+sub init_stat {
+    my ( $self ) = @_;
 
     $self->file_stat(File::Stat::OO->new({ file => $self->file }));
 
     $self->file_stat->use_datetime(1);
-    $self->file_stat->stat;
+    $self->file_stat->stat();
 
-    $self->check_atime( $self->file_stat->atime )
-      unless $self->check_atime;
-    $self->check_mtime( $self->file_stat->mtime )
-      unless $self->check_mtime;
+    $self->_atime( $self->file_stat->atime );
+    $self->_mtime( $self->file_stat->mtime );
+    $self->_ctime( $self->file_stat->ctime );
+    $self->_size( $self->file_stat->size );
 
-    $self->check_ctime( $self->file_stat->ctime )
-      unless $self->check_ctime;
+    $self->_atime( $self->check_atime->[1] )
+      if $self->check_atime && $self->check_atime->[1];
 
-    $self->check_size( $self->file_stat->size )
-      unless $self->check_size;
+    $self->_mtime( $self->check_mtime->[1] )
+      if $self->check_mtime && $self->check_mtime->[1];
 
+    $self->_ctime( $self->check_ctime->[1] )
+      if $self->check_ctime && $self->check_ctime->[1];
+
+    $self->_size( $self->check_size->[1] )
+      if $self->check_size;
+
+    return;
 }
 
 sub scan {
     my ($self,$type, $code) = @_;
+    my $fs = $self->file_stat;
 
     my $result;
+
+    # init 
     for ( qw( size_trigger atime_trigger mtime_trigger ctime_trigger ) ){ 
         $result->{$_} = 0;
     }
 
-    $self->file_stat->use_datetime(1);
-    $self->file_stat->stat($self->file);
+    $fs->use_datetime(1);
+    $fs->stat($self->file);
 
-    if ( $self->file_stat->size != $self->check_size ) {
+    if ( $self->_judge($fs->size, [$self->check_size->[0],$self->_size]) ) {
         $result->{size_trigger} = $self->call_trigger('size_trigger',$self);
-        $self->check_size($self->file_stat->size);
+        $self->_size($fs->size) if ( $self->auto_stat );
     }
 
     for my $st_time ( qw(atime mtime ctime) ) {
-        my $check_method = 'check_'.$st_time;#  check_atime or check_mtime or check_ctime
-        if ( $self->file_stat->$st_time->epoch != $self->$check_method->epoch ) {
+        my $method = 'check_'.$st_time;#  check_atime or check_mtime or check_ctime
+        my $_time   = '_'.$st_time;# _atime or _mtime or _ctime
+ 
+        if ( $self->$method &&
+            $self->_judge($fs->$st_time->epoch, [$self->$method->[0], $self->$_time->epoch] ) ) {
             $result->{$st_time.'_trigger'} = $self->call_trigger($st_time.'_trigger',$self);
-            $self->$check_method($self->file_stat->$st_time);
+
+            $self->$_time($fs->$st_time) if ( $self->auto_stat );
         }
     }
-
-#    if ( $self->file_stat->atime->epoch != $self->check_atime->epoch ) {
-#        $result->{atime_trigger} = $self->call_trigger('atime_trigger',$self);
-#        $self->check_atime($self->file_stat->atime);
-#    }
-#
-#    if ( $self->file_stat->mtime->epoch != $self->check_mtime->epoch ) {
-#        $result->{mtime_trigger} = $self->call_trigger('mtime_trigger',$self);
-#        $self->check_mtime($self->file_stat->mtime);
-#    }
-#
-#    if ( $self->file_stat->ctime->epoch != $self->check_ctime->epoch ) {
-#        $result->{ctime_trigger} = $self->call_trigger('ctime_trigger',$self);
-#        $self->check_ctime($self->file_stat->ctime);
-#    }
 
     return $result;
 }
@@ -121,6 +132,17 @@ sub ctime_trigger {
 sub _trigger {
     my ($self, $type, $code) = @_;
     $self->add_trigger($type,$code);
+}
+
+sub _judge {
+    my ($self, $value, $op) = @_;
+
+    return unless $op;
+
+    my $code = "$value $op->[0] $op->[1]";
+    return 1 if ( eval $code );
+
+    return; 
 }
 
 1;
