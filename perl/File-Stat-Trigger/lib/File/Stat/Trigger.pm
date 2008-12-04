@@ -97,7 +97,7 @@ sub scan {
     for my $st_time ( qw(atime mtime ctime) ) {
         my $method = 'check_'.$st_time;#  check_atime or check_mtime or check_ctime
         my $_time   = '_'.$st_time;# _atime or _mtime or _ctime
- 
+
         if ( $self->$method &&
             $self->_judge($fs->$st_time->epoch, [$self->$method->[0], $self->$_time->epoch] ) ) {
             $result->{$st_time.'_trigger'} = $self->call_trigger($st_time.'_trigger',$self);

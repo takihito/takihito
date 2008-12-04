@@ -1,11 +1,13 @@
 
 use strict;
-use Test::More tests => 7;
+use Test::More tests => 13;
+use IO::File;
 
 BEGIN { use_ok 'File::Stat::Trigger' }
 
+my $file = 't/sample.txt';
 my $fs = File::Stat::Trigger->new({
- file        => 't/sample.txt',
+ file        => $file,
  check_atime => ['>=','2008/11/20 12:00:00'],
  check_ctime => ['>='],
 # check_mtime => ['<=', '2008/11/20 12:00:00'],
@@ -27,6 +29,35 @@ is($result->{size_trigger},1,'Not Call size_trigger');
 is($result->{atime_trigger},1,'Not Call atime_trigger');
 is($result->{ctime_trigger},0,'Call ctime_trigger');
 is($result->{mtime_trigger},0,'Call mtime_trigger');
+
+# ---------- 
+$fs = File::Stat::Trigger->new({
+ file        => $file,
+ check_atime => ['!='],
+ check_ctime => ['=='],
+ check_mtime => ['=='],
+ check_size  => ['<=',1024],
+ auto_stat   => 1,
+});
+
+ok($fs->ctime_trigger(\&sample));
+ok($fs->atime_trigger(\&sample));
+ok($fs->mtime_trigger(\&sample));
+
+sleep(2);
+
+# changed atime
+my $fh = new IO::File "$file";
+if (defined $fh) {
+    while(my $l = <$fh>){}
+    $fh->close;
+}
+
+$result = $fs->scan();
+is($result->{atime_trigger},1,'Not Call atime_trigger');
+is($result->{ctime_trigger},1,'Not Call ctime_trigger');
+is($result->{mtime_trigger},1,'Not Call mtime_trigger');
+
 
 sub sample {
      my $fs = shift;
