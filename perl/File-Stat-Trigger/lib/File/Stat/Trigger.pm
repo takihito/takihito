@@ -156,9 +156,52 @@ File::Stat::Trigger -
 
   use File::Stat::Trigger;
 
+  my $file = 'sample.txt';
+  my $fs = File::Stat::Trigger->new({
+   file        => $file,
+   check_atime => ['>=','2008/12/1 12:00:00'],
+   check_ctime => ['>='],
+   check_mtime => ['==', '2008/12/1 12:00:00'],
+   check_size  => ['!=',1024],
+   auto_stat   => 1,
+  });
+  
+  $fs->size_trigger( sub {
+          my $self = shift;
+          my $i = $self->file_stat->size;    
+      } );
+  
+  $fs->atime_trigger(\&sample);
+  $fs->ctime_trigger(\&sample);
+  $fs->mtime_trigger(\&sample);
+  
+  my $result = $fs->scan();
+  
+  $result->{size_trigger};# 1
+  $result->{atime_trigger};# 1
+  $result->{ctime_trigger};# 0
+  $result->{mtime_trigger};# 0
+
 =head1 DESCRIPTION
 
-File::Stat::Trigger is
+This module squeezes the trigger,
+when the file state changed.
+
+=head1 METHODS
+
+=over 4
+
+=item size_trigger
+
+=item atime_trigger
+
+=item ctime_trigger
+
+=item mtime_trigger
+
+
+=back
+
 
 =head1 AUTHOR
 
