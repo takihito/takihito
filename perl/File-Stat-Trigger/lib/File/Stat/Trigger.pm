@@ -8,7 +8,7 @@ use Class::Trigger;
 use DateTime;
 use DateTime::Format::DateParse;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 subtype 'FileStat'
     => as 'Object'
@@ -159,7 +159,7 @@ __END__
 
 =head1 NAME
 
-File::Stat::Trigger -
+File::Stat::Trigger - The module to monitor the status of file.
 
 =head1 SYNOPSIS
 
@@ -196,8 +196,8 @@ File::Stat::Trigger -
 
 =head1 DESCRIPTION
 
-This module execute function.
-When the file state changed and matched parameter.
+This module executes the registered function
+ when the stat of file changed and matched parameter.
 
 =head1 METHODS
 
@@ -205,9 +205,7 @@ When the file state changed and matched parameter.
 
 =item new({file=>'filename'...})
 
-Set file state patameter.
-When the file state changed and matched parameter.
-This module execute registered function.
+Set file name, file parameter.
 
 =item size_trigger
 
@@ -238,8 +236,6 @@ This function execute 'scan()' in any interval.
 =head1 AUTHOR
 
 Akihito Takeda E<lt>takeda.akihito@gmail.comE<gt>
-
-=head1 SEE ALSO
 
 =head1 LICENSE
 
