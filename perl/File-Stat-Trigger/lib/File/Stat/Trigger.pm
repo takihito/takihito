@@ -185,7 +185,7 @@ File::Stat::Trigger -
 =head1 DESCRIPTION
 
 This module squeezes the trigger,
-when the file state changed.
+when the file state changed and it matched.
 
 =head1 METHODS
 
