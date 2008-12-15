@@ -191,26 +191,49 @@ File::Stat::Trigger -
   $result->{ctime_trigger};# 0
   $result->{mtime_trigger};# 0
 
+  # This function execute 'scan()' in three interval. 
+  $result = $fs->run(3);
+
 =head1 DESCRIPTION
 
-This module squeezes the trigger,
-when the file state changed and it matched.
+This module execute function.
+When the file state changed and matched parameter.
 
 =head1 METHODS
 
 =over 4
 
+=item new({file=>'filename'...})
+
+Set file state patameter.
+When the file state changed and matched parameter.
+This module execute registered function.
+
 =item size_trigger
+
+Register size trigger.
 
 =item atime_trigger
 
+Register atime trigger.
+
 =item ctime_trigger
+
+Register ctime trigger.
 
 =item mtime_trigger
 
+Register mtime trigger.
+
+=item scan
+
+Scan file stat.
+
+=item run(second)
+
+This function execute 'scan()' in any interval. 
 
 =back
-
 
 =head1 AUTHOR
 

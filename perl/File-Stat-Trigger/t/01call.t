@@ -58,7 +58,7 @@ is($result->{atime_trigger},1,'Not Call atime_trigger');
 is($result->{ctime_trigger},1,'Not Call ctime_trigger');
 is($result->{mtime_trigger},1,'Not Call mtime_trigger');
 
-# This function execute scan in three interval. 
+# This function execute 'scan()' in three interval. 
 #$result = $fs->run(3);
 
 sub sample {
