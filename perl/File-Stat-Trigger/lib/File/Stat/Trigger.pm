@@ -75,8 +75,17 @@ sub init_stat {
     return;
 }
 
+sub run {
+    my ($self, $time ) = @_;
+    $time ||= 5;
+    while (1) {
+        $self->scan();
+        sleep($time);
+    }
+}
+
 sub scan {
-    my ($self,$type, $code) = @_;
+    my ($self) = @_;
     my $fs = $self->file_stat;
 
     my $result;

@@ -58,10 +58,12 @@ is($result->{atime_trigger},1,'Not Call atime_trigger');
 is($result->{ctime_trigger},1,'Not Call ctime_trigger');
 is($result->{mtime_trigger},1,'Not Call mtime_trigger');
 
+# This function execute scan in three interval. 
+#$result = $fs->run(3);
 
 sub sample {
      my $fs = shift;
-     print 'file.atime:'.$fs->file_stat->atime->ymd('-')."\n";
+     print'file.atime:'.$fs->file_stat->atime->ymd('-')."\n";
      return 1;
 }
 
