@@ -8,7 +8,7 @@ use Class::Trigger;
 use DateTime;
 use DateTime::Format::DateParse;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 subtype 'FileStat'
     => as 'Object'
