@@ -1,6 +1,6 @@
 
 use strict;
-use Test::More tests => 13;
+use Test::More tests => 15;
 use IO::File;
 
 BEGIN { use_ok 'File::Stat::Trigger' }
@@ -36,13 +36,13 @@ $fs = File::Stat::Trigger->new({
  check_atime => ['!='],
  check_ctime => ['=='],
  check_mtime => ['=='],
- check_size  => ['!=',1024],
- auto_stat   => 1,
+ check_size  => ['>=',1024],
 });
 
 ok($fs->ctime_trigger(\&sample));
 ok($fs->atime_trigger(\&sample));
 ok($fs->mtime_trigger(\&sample));
+ok($fs->size_trigger(\&sample));
 
 sleep(2);
 
@@ -57,13 +57,14 @@ $result = $fs->scan();
 is($result->{atime_trigger},1,'Not Call atime_trigger');
 is($result->{ctime_trigger},1,'Not Call ctime_trigger');
 is($result->{mtime_trigger},1,'Not Call mtime_trigger');
+is($result->{size_trigger},0,'Not Call mtime_trigger');
 
 # This function execute 'scan()' in three interval. 
 #$result = $fs->run(3);
 
 sub sample {
      my $fs = shift;
-     print'file.atime:'.$fs->file_stat->atime->ymd('-')."\n";
+     print 'file.atime:'.$fs->file_stat->atime->ymd('-')."\n";
      return 1;
 }
 
