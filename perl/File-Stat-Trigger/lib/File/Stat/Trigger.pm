@@ -149,7 +149,10 @@ sub _judge {
     return unless $op;
 
     my $code = "$value $op->[0] $op->[1]";
-    return 1 if ( eval $code );
+
+    if ( eval $code ) { 
+        return 1;
+    }
 
     return; 
 }
