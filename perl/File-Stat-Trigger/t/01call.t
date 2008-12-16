@@ -1,6 +1,6 @@
 
 use strict;
-use Test::More tests => 15;
+use Test::More tests => 16;
 use IO::File;
 
 BEGIN { use_ok 'File::Stat::Trigger' }
@@ -61,6 +61,12 @@ is($result->{size_trigger},0,'Not Call mtime_trigger');
 
 # This function execute 'scan()' in three interval. 
 #$result = $fs->run(3);
+
+$fs = File::Stat::Trigger->new({
+ file        => $file,
+});
+
+ok($fs->scan());
 
 sub sample {
      my $fs = shift;

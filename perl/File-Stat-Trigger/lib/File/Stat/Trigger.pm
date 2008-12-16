@@ -8,7 +8,7 @@ use Class::Trigger;
 use DateTime;
 use DateTime::Format::DateParse;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 subtype 'FileStat'
     => as 'Object'
@@ -98,7 +98,7 @@ sub scan {
     $fs->use_datetime(1);
     $fs->stat($self->file);
 
-    if ( $self->_judge($fs->size, [$self->check_size->[0],$self->_size]) ) {
+    if ( $self->check_size && $self->_judge($fs->size, [$self->check_size->[0],$self->_size]) ) {
         $result->{size_trigger} = $self->call_trigger('size_trigger',$self);
         $self->_size($fs->size) if ( $self->auto_stat );
     }
