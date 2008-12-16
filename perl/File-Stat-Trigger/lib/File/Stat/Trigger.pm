@@ -34,7 +34,7 @@ has [ qw<check_atime check_mtime check_ctime> ] =>
 has [ qw<_atime _mtime _ctime> ] =>
     ( is  => 'rw', isa => 'DateTime', coerce  => 1);
 
-has 'check_size' => ( is  => 'rw', isa => 'ArrayRef');
+has 'check_size' => ( is  => 'rw', isa => 'ArrayRef', default => sub { ['!='] } );
 
 has '_size' => ( is  => 'rw', isa => 'Int');
 
@@ -70,7 +70,7 @@ sub init_stat {
       if $self->check_ctime && $self->check_ctime->[1];
 
     $self->_size( $self->check_size->[1] )
-      if $self->check_size;
+      if $self->check_size && $self->check_size->[1];
 
     return;
 }

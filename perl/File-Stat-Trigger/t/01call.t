@@ -36,8 +36,9 @@ $fs = File::Stat::Trigger->new({
  check_atime => ['!='],
  check_ctime => ['=='],
  check_mtime => ['=='],
- check_size  => ['>=',1024],
+ check_size  => ['!='],
 });
+# check_size  => ['!=',1024],
 
 ok($fs->ctime_trigger(\&sample));
 ok($fs->atime_trigger(\&sample));
