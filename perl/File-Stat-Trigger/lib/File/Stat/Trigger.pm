@@ -29,7 +29,7 @@ coerce 'DateTime'
 has 'file_stat' => (is => 'rw', isa => 'FileStat', coerce  => 1);
 
 has [ qw<check_atime check_mtime check_ctime> ] =>
-    ( is  => 'rw', isa => 'ArrayRef', coerce  => 1, default => sub { ['!='] } );
+    ( is  => 'rw', isa => 'ArrayRef', default => sub { ['!='] } );
 
 has [ qw<_atime _mtime _ctime> ] =>
     ( is  => 'rw', isa => 'DateTime', coerce  => 1);
@@ -119,22 +119,35 @@ sub scan {
 }
 
 sub size_trigger {
-    my ($self, $code) = @_;
+    my ($self, $code, $check_size) = @_;
+    $self->check_size($check_size) if $check_size;
     $self->_trigger('size_trigger', $code);
 }
 
 sub atime_trigger {
-    my ($self, $code) = @_;
+    my ($self, $code, $_check_atime) = @_;
+    if ( $_check_atime ) {
+        $self->check_atime($_check_atime); 
+        $self->_atime($_check_atime->[1]); 
+    }
     $self->_trigger('atime_trigger', $code);
 }
 
 sub mtime_trigger {
-    my ($self, $code) = @_;
+    my ($self, $code, $_check_mtime) = @_;
+    if ( $_check_mtime ) {
+        $self->check_mtime($_check_mtime); 
+        $self->_mtime($_check_mtime->[1]); 
+    }
     $self->_trigger('mtime_trigger', $code);
 }
 
 sub ctime_trigger {
-    my ($self, $code) = @_;
+    my ($self, $code, $_check_ctime) = @_;
+    if ( $_check_ctime ) {
+        $self->check_atime($_check_ctime); 
+        $self->_ctime($_check_ctime->[1]); 
+    }
     $self->_trigger('ctime_trigger', $code);
 }
 
