@@ -9,6 +9,7 @@ requires 'Class::Trigger';
 requires 'DateTime';
 requires 'DateTime::TimeZone';
 requires 'DateTime::Format::DateParse';
+requires 'Module::Install::AuthorTests';
 
 tests 't/*.t';
 author_tests 'xt';
