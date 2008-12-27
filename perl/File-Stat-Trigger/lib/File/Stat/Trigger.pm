@@ -198,7 +198,9 @@ File::Stat::Trigger - The module to monitor the status of file.
   
   $fs->atime_trigger(\&sample);
   $fs->ctime_trigger(\&sample);
+  # $fs->ctime_trigger(\&sample,['!=', '2008/12/1 12:00:00']);
   $fs->mtime_trigger(\&sample);
+  # $fs->mtime_trigger(\&sample,['!=', '2008/12/1 12:00:00']);
   
   my $result = $fs->scan();
   
@@ -225,19 +227,19 @@ Set file name, file parameter.
 
 =item size_trigger
 
-Register size trigger.
+Register size trigger. Set file parameter.
 
 =item atime_trigger
 
-Register atime trigger.
+Register atime trigger. Set file parameter.
 
 =item ctime_trigger
 
-Register ctime trigger.
+Register ctime trigger. Set file parameter.
 
 =item mtime_trigger
 
-Register mtime trigger.
+Register mtime trigger. Set file parameter.
 
 =item scan
 
