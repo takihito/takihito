@@ -22,15 +22,17 @@ foreach my $bucket ( @{ $response->{buckets} } ) {
 
 $akihito_bk->add_key_filename( 'sample.mp3', 'news.mp3',
       {
-        content_type => 'audio/mp3',
-        expires      => 'Sun, 14 Nov 2010 21:00:00 GMT',
-        'x-amz-acl'  => 'public-read'
+        content_type    => 'audio/mp3',
+        'cache-control' => 'max-age=21600,s-maxage=86404',
+        expires         => 'Sun, 14 Nov 2010 21:00:00 GMT',
+        'x-amz-acl'     => 'public-read'
       },
 ) or die $s3->err . ": " . $s3->errstr;
 
 $response = $akihito_bk->get_key('sample.mp3') or die $s3->err . ": " . $s3->errstr;
 print "         expires: " . $response->{expires} . "\n";
 print "  content length: " . $response->{content_length} . "\n";
+print "   cache-control: " . $response->{'cache-control'} . "\n";
 print "    content type: " . $response->{content_type} . "\n";
 print "            etag: " . $response->{etag} . "\n";
 print "         content: " . $response->{value} . "\n";
