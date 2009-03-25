@@ -22,7 +22,7 @@ sub _execute {
     my ($self, $cmd, $args) = @_;
 
     my $dir = $self->{config}->{svn_dir};
-    while( prompt "svn_up> Input update dir:  " ) {
+    while( prompt "svn_up> Input update dir[$dir]:  " ) {
           $dir = $_ if $_;
           my $msg = "svn_up> target dir: ".$self->{config}->{user}.'@'
                     .$self->{server}.":$dir".' ? [y/n] ';
