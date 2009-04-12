@@ -55,12 +55,15 @@ sub find :ResultSet {
     my ( $self,$id ) = @_;
     my $schema = $self->result_source->schema;
     my $book = $schema->get_cache_book($id);
+
     unless ( $book ) {
         ( $book ) = $self->search({id=>$id});
+        delete $book->{result_source};
         $schema->set_cache_book($id, $book);
     }
+
 #    $self->new({id=>1306,title=>'hoge'});
-    $book = $schema->get_cache_book($id);
+#    $book = $schema->get_cache_book($id);
     $book->result_source($self->result_source);
     $book;
 }
@@ -69,7 +72,9 @@ sub update {
     my ( $self ) = @_;
     my $schema = $self->result_source->schema;
     $self->next::method();
-    $schema->set_cache_book($self->id, $self);
+    my $book = $self;
+    delete $book->{result_source};
+    $schema->set_cache_book($self->id, $book);
     $self;
 } 
 

@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use My::Schema;
+use My::Schema::Book;
 #use Cache::Memcached::Fast;
 use Cache::Memcached;
 
@@ -20,3 +21,12 @@ print $book->update()." \n";
 $book = $schema->resultset('Book')->find($id);
 
 print $book->author." \n";
+
+#my ( $book1 ) = $schema->resultset('Book')->search({id=>$id});
+#my $cache = new Cache::Memcached({ servers => ['127.0.0.1:11211'], namespace=>'sample:'});
+#$cache->set('book',$book1);
+#my $book2 = $cache->get('book');
+#$book2->author('akihitozz'.time());
+#$book2->update();
+#print "id ".$book2->author." -------- \n";
+
