@@ -58,7 +58,7 @@ sub find :ResultSet {
 
     unless ( $book ) {
         ( $book ) = $self->search({id=>$id});
-        delete $book->{result_source};
+#        delete $book->{result_source};
         $schema->set_cache_book($id, $book);
     }
 
