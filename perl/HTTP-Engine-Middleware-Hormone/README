@@ -1,0 +1,27 @@
+This is Perl module HTTP::Engine::Middleware::Hormone.
+
+INSTALLATION
+
+HTTP::Engine::Middleware::Hormone installation is straightforward. If your CPAN shell is set up,
+you should just be able to do
+
+    % cpan HTTP::Engine::Middleware::Hormone
+
+Download it, unpack it, then build it as per the usual:
+
+    % perl Makefile.PL
+    % make && make test
+
+Then install it:
+
+    % make install
+
+DOCUMENTATION
+
+HTTP::Engine::Middleware::Hormone documentation is available as in POD. So you can do:
+
+    % perldoc HTTP::Engine::Middleware::Hormone
+
+to read the documentation online with your favorite pager.
+
+Akihito Takeda 

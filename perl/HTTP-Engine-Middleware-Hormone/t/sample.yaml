@@ -1,0 +1,29 @@
+name: Hormone
+
+TT:
+ config:
+  INCLUDE_PATH : './'
+  INTERPOLATE  : 1,
+  POST_CHOMP   : 1,
+  EVAL_PERL    : 1,
+
+response:
+ - path: /foo/bar/foo1
+   body: 'aa/foo/bar/foo1'
+ - path: /foo/bar/foo2
+   body: 'aa/foo/bar/foo2'
+ - path: /foo/tt
+   template: 'foo.tt'
+   stash:
+    name: AkihitoTakeda
+ - path: /foo/json
+   json: 1
+   stash:
+    name: AkihitoTakeda
+
+
+
+
+
+
+
