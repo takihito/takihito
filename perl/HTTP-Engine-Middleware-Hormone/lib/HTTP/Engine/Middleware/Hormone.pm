@@ -9,6 +9,7 @@ use Cwd;
 use Any::Moose 'X::Types::Path::Class';
 use Any::Moose '::Util::TypeConstraints';
 use YAML::Syck;
+use Template;
 
 our $VERSION = '0.01';
 
@@ -49,12 +50,40 @@ sub _builder_res_config {
 
 before_handle {
     my ( $c, $self, $req ) = @_;
+    my $path = $req->uri->path;
 
-    for my $res ( @{$self->config->{response}} ) {
+#    for my $res ( @{$self->config->{response}} ) {
 #        $self->res_config->{$res->{path}} = $res;
-#warn $res->{path}." res path ---- \n";
+#warn $res->{path}." res path ---- ----------- \n";
+#    }
+
+    unless ( $self->res_config->{$path} ) {
+        return HTTP::Engine::Response->new( status => '404', body => 'NotFound' );
     }
 
+    my $body;
+    my $content_type;
+    my $encoding = 'utf-8';
+    if ( $self->res_config->{$path}->{body} ) {
+        $body = $self->res_config->{$path}->{body};
+    }
+    elsif( $self->res_config->{$path}->{json} ) {
+        eval {
+            require JSON::XS;
+            $body = JSON::XS->new->utf8->encode($self->res_config->{$path}->{stash});
+        }; 
+        if ( ($req->user_agent || '') =~ /Opera/ ) {
+            $content_type = 'application/x-javascript';
+        } else {
+            $content_type = 'application/json';
+        }
+    }
+    elsif( $self->res_config->{$path}->{template} ) {
+        $content_type = 'text/html';
+        my $tt = Template->new($self->config->{TT}->{config});
+        $tt->process($self->res_config->{$path}->{template}, $self->res_config->{$path}->{stash}, \$body);
+    }
+warn "body : $body\n";
 
 #    my $re   = $self->regexp;
 #    my $uri_path = $req->uri->path;
@@ -90,7 +119,7 @@ before_handle {
 #    binmode $fh;
 
 #    my $res = HTTP::Engine::Response->new( body => $fh, content_type => $content_type );
-    my $res = HTTP::Engine::Response->new( body => 'akihito' );
+    my $res = HTTP::Engine::Response->new( body => $body, content_type => $content_type );
 #    my $stat = $file->stat;
 #    $res->header( 'Content-Length' => $stat->size );
 #    $res->header( 'Last-Modified'  => $stat->mtime );
