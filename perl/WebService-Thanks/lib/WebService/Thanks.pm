@@ -1,8 +1,16 @@
 package WebService::Thanks;
 
-use strict;
-use warnings;
+use Any::Moose;
+use Cache::FileCache;
+extends 'LWP::UserAgent';
+
 our $VERSION = '0.01';
+
+has 'api_key' => (
+    is      => 'ro',
+    isa     => 'Str',
+);
+
 
 1;
 __END__
@@ -21,6 +29,7 @@ WebService::Thanks is
 
 =head1 AUTHOR
 
+use parent
 Akihito Takeda E<lt>takeda.akihito@gmail.comE<gt>
 
 =head1 SEE ALSO

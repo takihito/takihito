@@ -1,5 +1,4 @@
 package HTTP::Engine::Middleware::Hormone;
-
 use HTTP::Engine::Middleware;
 use HTTP::Engine::Response;
 
@@ -37,25 +36,10 @@ has 'config'     => (
     required => 1,
 );
 
-sub _builder_res_config {
-    my ($self) = @_;
-
-    my $res_config = {};
-    for my $res ( @{$self->config->{response}} ) {
-        $res_config->{$res->{path}} = $res;
-    }
-
-    $res_config;
-}
-
 before_handle {
     my ( $c, $self, $req ) = @_;
-    my $path = $req->uri->path;
 
-#    for my $res ( @{$self->config->{response}} ) {
-#        $self->res_config->{$res->{path}} = $res;
-#warn $res->{path}." res path ---- ----------- \n";
-#    }
+    my $path = $req->uri->path;
 
     unless ( $self->res_config->{$path} ) {
         return HTTP::Engine::Response->new( status => '404', body => 'NotFound' );
@@ -83,48 +67,21 @@ before_handle {
         my $tt = Template->new($self->config->{TT}->{config});
         $tt->process($self->res_config->{$path}->{template}, $self->res_config->{$path}->{stash}, \$body);
     }
-warn "body : $body\n";
 
-#    my $re   = $self->regexp;
-#    my $uri_path = $req->uri->path;
-#    return $req unless $uri_path && $uri_path =~ /^(?:$re)$/;
-#
-#    my $docroot = dir($self->docroot)->absolute;
-#    my $file = do {
-#        if ($uri_path =~ m{/$} && $self->directory_index) {
-#            $docroot->file(
-#                File::Spec::Unix->splitpath($uri_path),
-#                $self->directory_index
-#            );
-#        } else {
-#            $docroot->file(
-#                File::Spec::Unix->splitpath($uri_path)
-#            )
-#        }
-#    };
-#
-#    # check directory traversal
-#    my $realpath = Cwd::realpath($file->absolute->stringify);
-#    return HTTP::Engine::Response->new( status => 403, body => 'forbidden') unless $docroot->subsumes($realpath);
-#
-#    return HTTP::Engine::Response->new( status => '404', body => 'not found' ) unless -e $file;
-#
-#    my $content_type = 'text/plain';
-#    if ($file =~ /.*\.(\S{1,})$/xms ) {
-#        $content_type = $self->mime_types->mimeTypeOf($1)->type;
-#    }
-#
-#    my $fh = $file->openr;
-#    die "Unable to open $file for reading : $!" unless $fh;
-#    binmode $fh;
-
-#    my $res = HTTP::Engine::Response->new( body => $fh, content_type => $content_type );
     my $res = HTTP::Engine::Response->new( body => $body, content_type => $content_type );
-#    my $stat = $file->stat;
-#    $res->header( 'Content-Length' => $stat->size );
-#    $res->header( 'Last-Modified'  => $stat->mtime );
     $res;
 };
+
+sub _builder_res_config {
+    my ($self) = @_;
+
+    my $res_config = {};
+    for my $res ( @{$self->config->{response}} ) {
+        $res_config->{$res->{path}} = $res;
+    }
+
+    $res_config;
+}
 
 __MIDDLEWARE__
 
