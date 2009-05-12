@@ -1,0 +1,21 @@
+name: Hormone
+
+TT:
+ config:
+  INCLUDE_PATH : './'
+
+response:
+ - path: /foo/bar/foo1
+   body: 'aa/foo/bar/foo1'
+ - path: /foo/bar/foo2
+   body: 'aa/foo/bar/foo2'
+ - path: /foo/json
+   json: 1
+   stash:
+    name: AkihitoTakeda
+ - path: /foo/tt
+   template: 'foo.tt'
+   stash:
+    name: AkihitoTakeda
+
+
