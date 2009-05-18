@@ -51,6 +51,14 @@ has 'ua' => (
     },
 );
 
+has 'domain' => (
+    is      => 'ro',
+    isa     => 'Str',
+    require => 1,
+    default => sub { 'thanks.kayac.com' },
+);
+
+
 sub say {
     my ( $self, $attr ) = @_;
     my $to_name = $attr->{to_name} || $self->to_name;
@@ -62,7 +70,7 @@ sub say {
         return;
     }
 
-    my $response = $self->ua->post('http://thanks.kayac.com/api/pub/say/thanks',{
+    my $response = $self->ua->post('http://'.$self->domain.'/api/pub/say/thanks',{
         to_name => $to_name,
         body    => $body,
         tag     => $tag,
@@ -84,7 +92,7 @@ sub say_guest {
         return;
     }
 
-    my $response = $self->ua->post('http://thanks.kayac.com/api/pub/say/guest_thanks',{
+    my $response = $self->ua->post('http://'.$self->domain.'/api/pub/say/guest_thanks',{
         to_name    => $to_name,
         guest_name => $guest_name,
         body       => $body,
@@ -99,7 +107,7 @@ sub read {
     my ( $self, $attr ) = @_;
     my $page = $attr->{page} || 1;
 
-    my $response = $self->ua->post('http://thanks.kayac.com/api/pub/read/thanks',{
+    my $response = $self->ua->post('http://'.$self->domain.'/api/pub/read/thanks',{
         page    => $page,
         api_key => $self->api_key,
     });
@@ -110,7 +118,7 @@ sub read_guest {
     my ( $self, $attr ) = @_;
     my $page = $attr->{page} || 1;
 
-    my $response = $self->ua->post('http://thanks.kayac.com/api/pub/read/guest_thanks',{
+    my $response = $self->ua->post('http://'.$self->domain.'/api/pub/read/guest_thanks',{
         page    => $page,
         api_key => $self->api_key,
     });
@@ -121,7 +129,7 @@ sub delete {
     my ( $self, $attr ) = @_;
     my $id = $attr->{id};
 
-    my $response = $self->ua->post('http://thanks.kayac.com/api/pub/read/delete',{
+    my $response = $self->ua->post('http://'.$self->domain.'/api/pub/delete/thanks',{
         id      => $id,
         api_key => $self->api_key,
     });
@@ -133,9 +141,11 @@ sub _call_api {
 
     if ( $response->is_success ) {
         warn $response->content;
-        return $self->json->jsonToObj($response->content);
+        #return $self->json->jsonToObj($response->content);
+        return $self->json->decode($response->content);
     }
     else {
+        warn $response->content;
         return;
     }
 }
