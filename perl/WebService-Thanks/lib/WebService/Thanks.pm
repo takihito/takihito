@@ -140,12 +140,12 @@ sub _call_api {
     my ( $self, $response ) = @_;
 
     if ( $response->is_success ) {
-        warn $response->content;
+        #warn $response->content;
         #return $self->json->jsonToObj($response->content);
         return $self->json->decode($response->content);
     }
     else {
-        warn $response->content;
+        #warn $response->content;
         return;
     }
 }
